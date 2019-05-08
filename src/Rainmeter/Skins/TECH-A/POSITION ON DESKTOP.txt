@@ -1,0 +1,22 @@
+COORDINATES OR POZSITION ON DESKTOP FOR EVERY CFG
+
+
+tech-a.ini 
+
+X=153
+Y=27
+
+rotator.ini
+
+X=339
+Y=207
+
+LINKS.ini
+
+X=74
+Y=196
+
+WEATHER.ini...
+
+X=830
+Y=180
