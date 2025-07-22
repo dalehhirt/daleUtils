@@ -1,0 +1,8 @@
+# https://docs.github.com/en/github/setting-up-and-managing-your-github-user-account/setting-your-commit-email-address
+[user]
+    email = 2246127+dalehhirt@users.noreply.github.com
+	name = Dale Hirt
+
+# https://docs.github.com/en/github/authenticating-to-github/managing-commit-signature-verification/signing-commits
+# [commit]
+#	gpgsign = true
