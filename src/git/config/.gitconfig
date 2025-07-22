@@ -1,0 +1,109 @@
+[core]
+	safecrlf = warn
+	preloadindex = true
+	fscache = true
+	editor = code --wait
+	autocrlf = false
+[push]
+	default = simple
+[credential]
+	helper = manager
+[remote "origin"]
+	prune = true
+[alias]
+	add-alias = "!f() { [ $# = 3 ] && git config $1 alias.\\"$2\\" \\"$3\\" && return 0 || echo \\"Usage: git add-(local|global)-alias <new alias> <original command>\\" >&2 && return 1; }; f"
+	add-global-alias = !git add-alias --global
+	add-local-alias = !git add-alias --local
+	aliases = !git config --get-regexp '^alias\\.' | cut -c 7- | sed 's/ / = /'
+	configfile = config --global -l --show-origin
+	branch-name = rev-parse --abbrev-ref HEAD
+	c = commit
+	ci = commit
+	co = checkout
+	cob = checkout -b
+	df = diff
+	dt = difftool
+	mt = mergetool
+	ff = merge --ff-only
+	praise = blame
+	st = status
+	sync = !git pull && git push
+	pu = "!git fetch origin -v; git fetch upstream -v; git merge upstream/master"
+	mm = "!git fetch origin -v; git merge origin/$1"
+	br = branch
+	branches = branch -a
+	stashes = stash list
+	root = rev-parse --show-toplevel
+	lg = log --graph --pretty=format:'%Cred%h -%C(yellow)%d%Creset %s %Cgreen(%ci) %C(bold blue)<%an>'
+	lol = log --graph --decorate --pretty=oneline --abbrev-commit
+	lola = log --graph --decorate --pretty=oneline --abbrev-commit --all
+	llog = log --date=local
+	who = shortlog --summary --
+	lc = log ORIG_HEAD.. --stat --no-merges
+	last = log -1 HEAD
+	whorank = shortlog --summary --numbered --no-merges
+	ls = ls-files
+	ign = ls-files -o -i --exclude-standard
+	ignored = ls-files -o -i --exclude-standard
+	undo = reset --hard
+	unstage = reset HEAD --
+	startover = !git undo && git clean -f -d -x
+	githubemail = !git config user.name 'Dale Hirt' && git config user.email 'dalehhirt@users.noreply.github.com'
+	lconfig = config --local --list
+	gconfig = config --global --list
+	publish = !git push --set-upstream origin $(git branch-name)
+	pruner = "!git prune --expire=now; git reflog expire --expire-unreachable=now --rewrite --all"
+	repacker = repack -a -d -f --depth=300 --window=300 --window-memory=1g
+	snapshot = !git stash save \"snapshot: $(date)\" && git stash apply stash@{0}
+	rebase-main = "!git fetch origin -v; git rebase origin/main"
+	rebase-master = "!git fetch origin -v; git rebase origin/master"
+	new = !git init && git symbolic-ref HEAD refs/heads/main
+	old-branch-delete = !git fetch -p && git branch -vv | awk \"/: gone]/{print \\$1}\" | xargs git branch -D -v
+[user]
+	name = Dale Hirt
+[diff]
+	tool = bc
+	guitool = bc
+[difftool "bc"]
+	path = c:/Program Files/Beyond Compare 4/bcomp.exe
+	cmd = \"c:/Program Files/Beyond Compare 4/bcomp.exe\" \"$LOCAL\" \"$REMOTE\"
+[merge]
+	tool = bc
+	guitool = bc
+[mergetool "bc"]
+	path = c:/Program Files/Beyond Compare 4/bcomp.exe
+	cmd = \"c:/Program Files/Beyond Compare 4/bcomp.exe\" \"$LOCAL\" \"$REMOTE\" \"$BASE\" \"$MERGED\"
+[difftool]
+	prompt = false
+[filter "lfs"]
+	clean = git-lfs clean -- %f
+	smudge = git-lfs smudge -- %f
+	process = git-lfs filter-process
+	required = true
+[includeIf "gitdir/i:c:/dd/"]
+	path = c:/dd/work.gitconfig
+[includeIf "gitdir/i:c:/github/"]
+	path = c:/github/personal.gitconfig
+[includeIf "gitdir/i:d:/dd/"]
+	path = d:/dd/work.gitconfig
+[includeIf "gitdir/i:d:/github/"]
+	path = d:/github/personal.gitconfig
+[includeIf "gitdir/i:e:/dd/"]
+	path = e:/dd/work.gitconfig
+[includeIf "gitdir/i:e:/github/"]
+	path = e:/github/personal.gitconfig
+[includeIf "gitdir/i:f:/dd/"]
+	path = f:/dd/work.gitconfig
+[includeIf "gitdir/i:f:/github/"]
+	path = f:/github/personal.gitconfig
+[safe]
+	directory = C:/dd
+	directory = C:/dd/Quickstart
+[pull]
+	rebase = false
+[fetch]
+	prune = false
+[rebase]
+	autoStash = false
+	autosquash = false
+	updateRefs = false
