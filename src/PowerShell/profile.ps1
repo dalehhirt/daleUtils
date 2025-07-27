@@ -1,3 +1,11 @@
+<#
+.DESCRIPTION
+  PowerShell Profile file.
+.EXAMPLE
+# Open a powershell terminal and run the following code.  Copy this file into that file.
+code $profile.CurrentUserAllHosts
+#>
+
 function Using-Object() {
     <#
     .DESCRIPTION
