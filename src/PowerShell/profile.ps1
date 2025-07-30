@@ -41,3 +41,5 @@ function Using-Object() {
 function log() {
   write-host ">>> [$($env:COMPUTERNAME)]" ((Get-Date).ToUniversalTime().ToString('u')) "$args" -ForeGroundColor Yellow
 }
+
+log "Loading $PSCommandPath"
