@@ -12,7 +12,7 @@
 	add-alias = "!f() { [ $# = 3 ] && git config $1 alias.\\"$2\\" \\"$3\\" && return 0 || echo \\"Usage: git add-(local|global)-alias <new alias> <original command>\\" >&2 && return 1; }; f"
 	add-global-alias = !git add-alias --global
 	add-local-alias = !git add-alias --local
-	aliases = !git config --get-regexp '^alias\\.' | cut -c 7- | sed 's/ / = /'
+	aliases = !git config --get-regexp '^alias\\.' | cut -c 7- | sed 's/ / = /' | sort
 	configfile = config --global -l --show-origin
 	branch-name = rev-parse --abbrev-ref HEAD
 	c = commit
@@ -26,7 +26,11 @@
 	praise = blame
 	st = status
 	sync = !git pull && git push
+	# Forces merge from upstream master
 	pu = "!git fetch origin -v; git fetch upstream -v; git merge upstream/master"
+	# Merge from given branch in upstream
+	mu = "!git fetch origin -v; git fetch upstream -v; git merge upstream/$1"
+	# Merge from given branch in origin
 	mm = "!git fetch origin -v; git merge origin/$1"
 	br = branch
 	branches = branch -a
