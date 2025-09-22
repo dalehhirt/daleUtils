@@ -6,15 +6,13 @@
 	autocrlf = false
 [push]
 	default = simple
-[credential]
-	helper = manager
 [remote "origin"]
 	prune = true
 [alias]
 	add-alias = "!f() { [ $# = 3 ] && git config $1 alias.\\"$2\\" \\"$3\\" && return 0 || echo \\"Usage: git add-(local|global)-alias <new alias> <original command>\\" >&2 && return 1; }; f"
 	add-global-alias = !git add-alias --global
 	add-local-alias = !git add-alias --local
-	aliases = !git config --get-regexp '^alias\\.' | cut -c 7- | sed 's/ / = /'
+	aliases = !git config --get-regexp '^alias\\.' | cut -c 7- | sed 's/ / = /' | sort
 	configfile = config --global -l --show-origin
 	branch-name = rev-parse --abbrev-ref HEAD
 	c = commit
@@ -28,7 +26,11 @@
 	praise = blame
 	st = status
 	sync = !git pull && git push
+	# Forces merge from upstream master
 	pu = "!git fetch origin -v; git fetch upstream -v; git merge upstream/master"
+	# Merge from given branch in upstream
+	mu = "!git fetch origin -v; git fetch upstream -v; git merge upstream/$1"
+	# Merge from given branch in origin
 	mm = "!git fetch origin -v; git merge origin/$1"
 	br = branch
 	branches = branch -a
@@ -80,25 +82,25 @@
 	smudge = git-lfs smudge -- %f
 	process = git-lfs filter-process
 	required = true
-[includeIf "gitdir/i:c:/dd/"]
-	path = c:/dd/work.gitconfig
-[includeIf "gitdir/i:c:/github/"]
-	path = c:/github/personal.gitconfig
-[includeIf "gitdir/i:d:/dd/"]
-	path = d:/dd/work.gitconfig
-[includeIf "gitdir/i:d:/github/"]
-	path = d:/github/personal.gitconfig
-[includeIf "gitdir/i:e:/dd/"]
-	path = e:/dd/work.gitconfig
-[includeIf "gitdir/i:e:/github/"]
-	path = e:/github/personal.gitconfig
-[includeIf "gitdir/i:f:/dd/"]
-	path = f:/dd/work.gitconfig
-[includeIf "gitdir/i:f:/github/"]
-	path = f:/github/personal.gitconfig
+[includeIf "gitdir/i:c:/work/"]
+	path = c:/work/work.gitconfig
+[includeIf "gitdir/i:c:/personal/"]
+	path = c:/personal/personal.gitconfig
+[includeIf "gitdir/i:d:/work/"]
+	path = d:/work/work.gitconfig
+[includeIf "gitdir/i:d:/personal/"]
+	path = d:/personal/personal.gitconfig
+[includeIf "gitdir/i:e:/work/"]
+	path = e:/work/work.gitconfig
+[includeIf "gitdir/i:e:/personal/"]
+	path = e:/personal/personal.gitconfig
+[includeIf "gitdir/i:f:/work/"]
+	path = f:/work/work.gitconfig
+[includeIf "gitdir/i:f:/personal/"]
+	path = f:/personal/personal.gitconfig
 [safe]
-	directory = C:/dd
-	directory = C:/dd/Quickstart
+	directory = C:/work
+	directory = C:/personal
 [pull]
 	rebase = false
 [fetch]
