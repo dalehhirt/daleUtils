@@ -61,8 +61,6 @@
 	rebase-master = "!git fetch origin -v; git rebase origin/master"
 	new = !git init && git symbolic-ref HEAD refs/heads/main
 	old-branch-delete = !git fetch -p && git branch -vv | awk \"/: gone]/{print \\$1}\" | xargs git branch -D -v
-[user]
-	name = Dale Hirt
 [diff]
 	tool = bc
 	guitool = bc
