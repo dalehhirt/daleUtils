@@ -1,4 +1,17 @@
 # From laptop
+<#
+.DESCRIPTION
+  PowerShell Profile file.
+.EXAMPLE
+# Open a powershell terminal and run the following code.  Copy this file into that file.
+code $profile.CurrentUserAllHosts
+#>
+
+
+#-------------------------
+# Functions
+#-------------------------
+
 function log() {
   write-host ">>> [$($env:COMPUTERNAME)]" ((Get-Date).ToUniversalTime().ToString('u')) "$args" -ForeGroundColor Yellow
 }
@@ -97,25 +110,6 @@ output "name" {
   }
 }
 
-log "Loading $PSCommandPath"
-log "Setting up `$Profile.CurrentUserAllHosts $($Profile.CurrentUserAllHosts)"
-addto-Env "$($env:USERPROFILE)\OneDrive - Mavis Tire\Documents\tools\azcli\bin"
-addto-Env "$($env:USERPROFILE)\OneDrive - Mavis Tire\Documents\tools\terraform"
-addto-Env "$($env:USERPROFILE)\OneDrive - Mavis Tire\Documents\tools\Graphviz\bin"
-addto-env "$($env:USERPROFILE)\OneDrive - Mavis Tire\Documents\tools\sysinternals"
-addto-env "$($env:USERPROFILE)\OneDrive - Mavis Tire\Documents\tools\go\bin"
-addto-env "$($env:USERPROFILE)\OneDrive - Mavis Tire\Documents\tools\github\bin"
-addto-env "$($env:USERPROFILE)\OneDrive - Mavis Tire\Documents\tools\git\bin"
-
-
-<#
-.DESCRIPTION
-  PowerShell Profile file.
-.EXAMPLE
-# Open a powershell terminal and run the following code.  Copy this file into that file.
-code $profile.CurrentUserAllHosts
-#>
-
 function Using-Object() {
     <#
     .DESCRIPTION
@@ -175,4 +169,19 @@ function prompt {
     else { return "$now $defaultPrompt "}
 }
 
+#-------------------------
+# Main Code
+#-------------------------
+
 Import-Module posh-git
+
+log "Loading $PSCommandPath"
+# log "Setting up `$Profile.CurrentUserAllHosts $($Profile.CurrentUserAllHosts)"
+
+addto-Env "$($env:USERPROFILE)\OneDrive - Mavis Tire\Documents\tools\azcli\bin"
+addto-Env "$($env:USERPROFILE)\OneDrive - Mavis Tire\Documents\tools\terraform"
+addto-Env "$($env:USERPROFILE)\OneDrive - Mavis Tire\Documents\tools\Graphviz\bin"
+addto-env "$($env:USERPROFILE)\OneDrive - Mavis Tire\Documents\tools\sysinternals"
+addto-env "$($env:USERPROFILE)\OneDrive - Mavis Tire\Documents\tools\go\bin"
+addto-env "$($env:USERPROFILE)\OneDrive - Mavis Tire\Documents\tools\github\bin"
+addto-env "$($env:USERPROFILE)\OneDrive - Mavis Tire\Documents\tools\git\bin"
