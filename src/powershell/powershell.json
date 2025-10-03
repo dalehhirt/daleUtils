@@ -15,7 +15,7 @@
 	"New Array" :{
 		"prefix": "array",
 		"description": "Add array",
-		"body": ["$arrayList = [System.Collections.ArrayList]@()"]
+		"body": ["$$arrayList = [System.Collections.ArrayList]@()"]
 	},
 	"Comment-based help" :{
 		"prefix": "synopsis",
