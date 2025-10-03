@@ -12,6 +12,11 @@
 	// 	],
 	// 	"description": "Log output to console"
 	// }
+	"New Array" :{
+		"prefix": "array",
+		"description": "Add array",
+		"body": ["$arrayList = [System.Collections.ArrayList]@()"]
+	},
 	"Comment-based help" :{
 		"prefix": "synopsis",
 		"description": "Add comment-based help to any script or function",
