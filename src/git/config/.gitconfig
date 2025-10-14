@@ -15,8 +15,8 @@
 	add-global-alias = !git add-alias --global
 	add-local-alias = !git add-alias --local
 	aliases = !git config --get-regexp '^alias\\.' | cut -c 7- | sed 's/ / = /' | sort
+
 	configfile = config --global -l --show-origin
-	branch-name = rev-parse --abbrev-ref HEAD
 	c = commit
 	ci = commit
 	co = checkout
@@ -27,28 +27,40 @@
 	ff = merge --ff-only
 	praise = blame
 	st = status
+
 	sync = !git pull && git push
+
 	# Forces merge from upstream master
 	pu = "!git fetch origin -v; git fetch upstream -v; git merge upstream/master"
 	# Merge from given branch in upstream
 	mu = "!git fetch origin -v; git fetch upstream -v; git merge upstream/$1"
 	# Merge from given branch in origin
 	mm = "!git fetch origin -v; git merge origin/$1"
+	rebase-main = "!git fetch origin -v; git rebase origin/main"
+	rebase-master = "!git fetch origin -v; git rebase origin/master"
+
 	br = branch
 	branches = branch -a
+	old-branch-delete = !git fetch -p && git branch -vv | awk \"/: gone]/{print \\$1}\" | xargs git branch -D -v
+	branch-name = rev-parse --abbrev-ref HEAD
+
 	stashes = stash list
+	snapshot = !git stash save \"snapshot: $(date)\" && git stash apply stash@{0}
+
 	root = rev-parse --show-toplevel
 	lg = log --graph --pretty=format:'%Cred%h -%C(yellow)%d%Creset %s %Cgreen(%ci) %C(bold blue)<%an>'
 	lol = log --graph --decorate --pretty=oneline --abbrev-commit
 	lola = log --graph --decorate --pretty=oneline --abbrev-commit --all
 	llog = log --date=local
-	who = shortlog --summary --
 	lc = log ORIG_HEAD.. --stat --no-merges
 	last = log -1 HEAD
+	who = shortlog --summary --no-merges --
 	whorank = shortlog --summary --numbered --no-merges
+	whoemail = shortlog --summary --email --all --no-merges
 	ls = ls-files
 	ign = ls-files -o -i --exclude-standard
 	ignored = ls-files -o -i --exclude-standard
+
 	undo = reset --hard
 	unstage = reset HEAD --
 	startover = !git undo && git clean -f -d -x
@@ -58,11 +70,8 @@
 	publish = !git push --set-upstream origin $(git branch-name)
 	pruner = "!git prune --expire=now; git reflog expire --expire-unreachable=now --rewrite --all"
 	repacker = repack -a -d -f --depth=300 --window=300 --window-memory=1g
-	snapshot = !git stash save \"snapshot: $(date)\" && git stash apply stash@{0}
-	rebase-main = "!git fetch origin -v; git rebase origin/main"
-	rebase-master = "!git fetch origin -v; git rebase origin/master"
-	new = !git init && git symbolic-ref HEAD refs/heads/main
-	old-branch-delete = !git fetch -p && git branch -vv | awk \"/: gone]/{print \\$1}\" | xargs git branch -D -v
+	new = init -b main
+
 [user]
 	name = Dale Hirt
 [diff]
