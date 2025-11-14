@@ -48,8 +48,8 @@ process {
           Sort-Object Id
 
   if (![System.String]::IsNullOrWhiteSpace($subscriptionId)) {
-    $eligibleRoles = $eligibleRoles | where {$_.Id -like "/subscriptions/$subscriptionId*"}
-    $activatedRoles = $activatedRoles | where {$_.Id -like "/subscriptions/$subscriptionId*"}
+    $eligibleRoles = $eligibleRoles | Where-Object {$_.Id -like "/subscriptions/$subscriptionId*"}
+    $activatedRoles = $activatedRoles | Where-Object {$_.Id -like "/subscriptions/$subscriptionId*"}
   }
 
   $activatedRolesIds = $activatedRoles.LinkedRoleEligibilityScheduleId
