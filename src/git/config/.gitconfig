@@ -2,7 +2,7 @@
 	safecrlf = warn
 	preloadindex = true
 	fscache = true
-	editor = code --wait
+	editor = code --wait # VS Code
 	autocrlf = false
 [push]
 	default = simple
