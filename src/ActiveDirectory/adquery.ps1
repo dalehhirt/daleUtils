@@ -116,7 +116,7 @@ begin {
     if($property -is [System.DirectoryServices.ResultPropertyValueCollection] ) {
       $val = "$indent$key = ["
 
-      $val += ($property | sort) -join ","
+      $val += ($property | Sort-Object) -join ","
       $val += "]"
       log $val
     }
@@ -135,7 +135,7 @@ process {
     if($group) {
       $results = Get-Group $Searcher $name
       if($PassThrough) {
-        $results | foreach {[void]$returnValue.Add($_)}
+        $results | ForEach-Object {[void]$returnValue.Add($_)}
       }
       else {
         $results | ForEach-Object {
@@ -145,19 +145,19 @@ process {
           $properties = $result.Properties
 
           log "  Members:"
-          $properties["member"] | foreach {log "  " $_}
+          $properties["member"] | ForEach-Object {log "  " $_}
           log "  Properties"
-          $properties.keys | foreach {write-properties -level 2 -key $_ -property $properties[$_]}
+          $properties.keys | Sort-Object | ForEach-Object {write-properties -level 2 -key $_ -property $properties[$_]}
         }
       }
     }
     else {
       $results = Get-User $Searcher $name
       if($PassThrough) {
-        $results | foreach {[void]$returnValue.Add($_)}
+        $results | ForEach-Object {[void]$returnValue.Add($_)}
       }
       else {
-        $results | foreach {
+        $results | ForEach-Object {
           $result = $_
           log "Found user:" $result.path
 
@@ -167,19 +167,19 @@ process {
 
           $groups = $properties["memberOf"]  | sort-object 
           log "  Member of $($groups.count) groups explicitly:"
-          $groups| foreach {log "  " $_}
+          $groups| ForEach-Object {log "  " $_}
 
           $distinguishedName=$properties["distinguishedName"]
 
           $ugResult = Get-UserGroups -Searcher $Searcher -distinguishedName $distinguishedName[0]
           if($ugResult) {
-            $ugGroups = $ugResult | foreach {$_.Properties["Distinguishedname"]} | where {$groups -notcontains $_} | sort-Object
+            $ugGroups = $ugResult | ForEach-Object {$_.Properties["Distinguishedname"]} | where {$groups -notcontains $_} | sort-Object
           log "  Member of $($ugGroups.count) groups implicitly:"
-            $ugGroups | foreach {log "  " $_}
+            $ugGroups | ForEach-Object {log "  " $_}
           }
 
           log "  Properties"
-          $properties.keys | foreach {write-properties -level 2 -key $_ -property $properties[$_]}
+          $properties.keys | Sort-Object | ForEach-Object {write-properties -level 2 -key $_ -property $properties[$_]}
         }
       }
     }
