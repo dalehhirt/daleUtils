@@ -129,14 +129,14 @@ process {
       else {
         $results | ForEach-Object {
           $result = $_
-          log "Found group"
+          log "Found group" $result.path
           [void]$returnValue.Add($result)
           $properties = $result.Properties
 
-          log "Members:"
+          log "  Members:"
           $properties["member"] | foreach {log "  " $_}
-          log "Properties"
-          $properties.keys | foreach {display-properties -level 1 -key $_ -property $properties[$_]}
+          log "  Properties"
+          $properties.keys | foreach {display-properties -level 2 -key $_ -property $properties[$_]}
         }
       }
     }
@@ -155,7 +155,7 @@ process {
           $properties = $result.Properties
 
           $groups = $properties["memberOf"]  | sort-object 
-          log "Member of $($groups.count) groups explicitly:"
+          log "  Member of $($groups.count) groups explicitly:"
           $groups| foreach {log "  " $_}
 
           $distinguishedName=$properties["distinguishedName"]
@@ -163,12 +163,12 @@ process {
           $ugResult = Get-UserGroups -Searcher $Searcher -distinguishedName $distinguishedName[0]
           if($ugResult) {
             $ugGroups = $ugResult | foreach {$_.Properties["Distinguishedname"]} | where {$groups -notcontains $_} | sort-Object
-          log "Member of $($ugGroups.count) groups implicitly:"
+          log "  Member of $($ugGroups.count) groups implicitly:"
             $ugGroups | foreach {log "  " $_}
           }
 
-          log "Properties"
-          $properties.keys | foreach {display-properties -level 1 -key $_ -property $properties[$_]}
+          log "  Properties"
+          $properties.keys | foreach {display-properties -level 2 -key $_ -property $properties[$_]}
         }
       }
     }
