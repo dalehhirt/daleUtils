@@ -39,6 +39,14 @@
 	    "",
 	    "  Write-Error \">>> [$($$env:COMPUTERNAME)] $((Get-Date).ToUniversalTime().ToString('u')) $$args\"",
 	    "}",
+		"",
+	    "function log-verbose() {",
+	    "  [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseApprovedVerbs', '',",
+	    "    Justification='Log verbose is more accurate')]",
+	    "  param()",
+	    "",
+	    "  Write-Error \">>> [$($$env:COMPUTERNAME)] $((Get-Date).ToUniversalTime().ToString('u')) $$args\"",
+	    "}",
 		""
 		]
 	},
@@ -62,6 +70,14 @@
 	    "      Justification='Log error is more accurate')]",
 	    "    param()",
 	    "  ",
+	    "    Write-Error \">>> [$($$env:COMPUTERNAME)] $((Get-Date).ToUniversalTime().ToString('u')) $$args\"",
+	    "  }",
+		"  ",
+	    "  function log-verbose() {",
+	    "    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseApprovedVerbs', '',",
+	    "      Justification='Log verbose is more accurate')]",
+	    "    param()",
+	    "    ",
 	    "    Write-Error \">>> [$($$env:COMPUTERNAME)] $((Get-Date).ToUniversalTime().ToString('u')) $$args\"",
 	    "  }",
 		"  ",
@@ -98,6 +114,14 @@
 	    "    Write-Error \">>> [$($$env:COMPUTERNAME)] $((Get-Date).ToUniversalTime().ToString('u')) $$args\"",
 	    "  }",
 		"  ",
+	    "  function log-verbose() {",
+	    "    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseApprovedVerbs', '',",
+	    "      Justification='Log verbose is more accurate')]",
+	    "    param()",
+	    "    ",
+	    "    Write-Error \">>> [$($$env:COMPUTERNAME)] $((Get-Date).ToUniversalTime().ToString('u')) $$args\"",
+	    "  }",
+		"  ",
         "  $$originalAzContext = (Get-AzContext).Subscription.Id",
 		"  #$$originalAzContext = ((az account show --query 'id') -replace '\"\"', '')",
         "  if($$subscriptionId -ne $$originalAzContext) {",
@@ -117,5 +141,10 @@
 		"  }",
 		"}"
 		]
+	},
+	"Suppress PSUseApprovedVerbs" : {
+		"prefix": "suppressverbs",
+		"description": "Suppress PSUseApprovedVerbs for this function/script.",
+		"body": "[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseApprovedVerbs', '',Justification='Just an example')]"
 	}
 }
