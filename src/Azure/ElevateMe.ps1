@@ -27,19 +27,23 @@ begin {
     Write-Error ">>> [$($env:COMPUTERNAME)] $((Get-Date).ToUniversalTime().ToString('u')) $args"
   }
   
-#   $originalAzContext = (Get-AzContext).Subscription.Id
-#   #$originalAzContext = ((az account show --query 'id') -replace '""', '')
-#   if($subscriptionId -ne $originalAzContext) {
-#     log "Setting context to" $subscriptionId
-#     Set-AzContext -Subscription $subscriptionId
-#     #az account set --subscription $subscriptionId
-#   }
-
-$filter = 'asTarget()'
+  $filter = 'asTarget()'
   $Scope = '/'
+  $isSubIdNull = [System.String]::IsNullOrWhiteSpace($subscriptionId)
+
+  # We don't actually do anything unless subscription is specified
+  if ($isSubIdNull -and ($WhatIfPreference -eq $false)) {
+    log "Setting Whatif to true. Pass in subscriptionId to enable."
+    $WhatIfPreference = $true
+  }
 }
 process {
-  log "Getting Role Information"
+  if ($isSubIdNull) {
+    log "Getting All Role(s) Information"
+  }
+  else {
+    log "Getting $subscriptionId Role(s) Information"
+  }
   $eligibleRoles = Get-AzRoleEligibilitySchedule -Scope $scope -Filter $filter -ErrorAction stop |
     Sort-Object Id
 
@@ -47,9 +51,9 @@ process {
           Where-Object {$_.AssignmentType -EQ 'Activated' } |
           Sort-Object Id
 
-  if (![System.String]::IsNullOrWhiteSpace($subscriptionId)) {
-    $eligibleRoles = $eligibleRoles | where {$_.Id -like "/subscriptions/$subscriptionId*"}
-    $activatedRoles = $activatedRoles | where {$_.Id -like "/subscriptions/$subscriptionId*"}
+  if (!$isSubIdNull) {
+    $eligibleRoles = $eligibleRoles | Where-Object {$_.Id -like "/subscriptions/$subscriptionId*"}
+    $activatedRoles = $activatedRoles | Where-Object {$_.Id -like "/subscriptions/$subscriptionId*"}
   }
 
   $activatedRolesIds = $activatedRoles.LinkedRoleEligibilityScheduleId
@@ -105,9 +109,5 @@ process {
   }
 }
 end {
-#   if($subscriptionId -ne $originalAzContext) {
-#     log "Setting context back to" $originalAzContext
-#     Set-AzContext -Subscription $originalAzContext
-#     #az account set --subscription $originalAzContext
-#   }
+  log "Finished"
 }
