@@ -23,15 +23,30 @@ param(
 )
 begin {
   function log() {
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseApprovedVerbs', '',Justification='Log function')]
+    param()
     write-host ">>> [$($env:COMPUTERNAME)]" ((Get-Date).ToUniversalTime().ToString('u')) "$args" -ForeGroundColor Green
   }
 
+  function log-error() {
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseApprovedVerbs', '',
+      Justification='Log error is more accurate')]
+    param()
+  
+    Write-Error ">>> [$($env:COMPUTERNAME)] $((Get-Date).ToUniversalTime().ToString('u')) $args"
+  }
+
   function log-verbose() {
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseApprovedVerbs', '',
+      Justification='Log verbose is more accurate')]
+    param()
     write-verbose ">>> [$($env:COMPUTERNAME)] $((Get-Date).ToUniversalTime().ToString('u')) $args"
   }
 
   function Using-Object
   {
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseApprovedVerbs', '',
+      Justification='Using C# Idioms to enable easier usage.')]
     [CmdletBinding()]
     param (
           [Parameter(Mandatory = $true)]
