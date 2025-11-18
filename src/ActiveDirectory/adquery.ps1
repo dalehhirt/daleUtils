@@ -116,7 +116,13 @@ begin {
     if($property -is [System.DirectoryServices.ResultPropertyValueCollection] ) {
       $val = "$indent$key = ["
 
-      $val += ($property | Sort-Object) -join ","
+      if($property[0] -is [System.Byte[]]) {
+        $val += $property | foreach {"$_"}
+      }
+      else {
+          $val += ($property | Sort-Object) -join ","
+      }
+
       $val += "]"
       log $val
     }
