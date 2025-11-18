@@ -77,19 +77,15 @@ begin {
 
   function Get-UserGroups() {
     param($Searcher, $distinguishedName)
-    # param($rootOu, $username)
-    # #$LDAPGroupMemberFilterRecursive = "&(member:1.2.840.113556.1.4.1941:={0})(objectClass=user)(sAMAccountName={1})"
+
+    # This is the LDAP filter we need to use in order to get recursive (implicit) group membership
     $LDAPGroupMemberFilterRecursive = "(member:1.2.840.113556.1.4.1941:={0})"
-    # $user = Get-User -rootOu $rootOu -userName $username
-    # $container = $user.GetDirectoryEntry().distinguishedName.ToString()
-    # $foundName = $user.GetDirectoryEntry().name.ToString()
-    # Using-Object($Searcher = New-Object DirectoryServices.DirectorySearcher) {
-      #$Searcher.SearchRoot = New-Object System.DirectoryServices.DirectoryEntry("LDAP://$($rootOu)")
-      $Searcher.Filter = $LDAPGroupMemberFilterRecursive -f $distinguishedName#, $foundName
-      $Searcher.PropertiesToLoad.Clear()
-      $Searcher.SearchScope = [DirectoryServices.SearchScope]::Subtree
-      return $searcher.FindAll()
-    # }
+
+    $Searcher.Filter = $LDAPGroupMemberFilterRecursive -f $distinguishedName#, $foundName
+    $Searcher.PropertiesToLoad.Clear()
+    $Searcher.SearchScope = [DirectoryServices.SearchScope]::Subtree
+
+    return $searcher.FindAll()
   }
 
   function Get-User() {
@@ -114,7 +110,7 @@ begin {
     return $searcher.FindAll()
   }
 
-  function display-properties(){
+  function write-properties(){
     param($level, $key, $property)
     $indent = "  " * $level
     if($property -is [System.DirectoryServices.ResultPropertyValueCollection] ) {
@@ -151,7 +147,7 @@ process {
           log "  Members:"
           $properties["member"] | foreach {log "  " $_}
           log "  Properties"
-          $properties.keys | foreach {display-properties -level 2 -key $_ -property $properties[$_]}
+          $properties.keys | foreach {write-properties -level 2 -key $_ -property $properties[$_]}
         }
       }
     }
@@ -183,7 +179,7 @@ process {
           }
 
           log "  Properties"
-          $properties.keys | foreach {display-properties -level 2 -key $_ -property $properties[$_]}
+          $properties.keys | foreach {write-properties -level 2 -key $_ -property $properties[$_]}
         }
       }
     }
