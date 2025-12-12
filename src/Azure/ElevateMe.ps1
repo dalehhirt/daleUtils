@@ -5,6 +5,8 @@ This script elevates you into specified PIM groups.  If you want it for all, don
 C:\personal\daleUtils\src\Azure\ElevateMe.ps1 -subscriptionId "<subscription id>" -Justification "Terraform Deployment" -whatif
 .EXAMPLE
 C:\personal\daleUtils\src\Azure\ElevateMe.ps1 -Justification "Terraform Deployment" -whatif
+.EXAMPLE
+Get-AzSubscription | foreach {C:\personal\daleUtils\src\Azure\ElevateMe.ps1 -subscriptionId $_.SubscriptionId -Justification "Terraform Deployment" -whatif}
 #>
 [CmdletBinding(SupportsShouldProcess=$true)]
 param(
