@@ -41,10 +41,10 @@ begin {
 }
 process {
   if ($isSubIdNull) {
-    log "Getting All Role(s) Information"
+    log "Getting role information for all subscription(s)."
   }
   else {
-    log "Getting $subscriptionId Role(s) Information"
+    log "Getting role information for subscription $subscriptionId"
   }
   $eligibleRoles = Get-AzRoleEligibilitySchedule -Scope $scope -Filter $filter -ErrorAction stop |
     Sort-Object Id
@@ -61,16 +61,19 @@ process {
   $activatedRolesIds = $activatedRoles.LinkedRoleEligibilityScheduleId
 
   if($null -ne $eligibleRoles) {
-    log "Eligible Roles"
-    log "-------------"
+    log "$(($eligibleRoles | Measure-Object).Count) eligible role(s) found"
+    log "--------------------------"
     $eligibleRoles | 
         Format-List Id,ScopeDisplayName,PrincipalDisplayName,RoleDefinitionDisplayName
     
     if($null -ne $activatedRoles) {
-      log "Activated Roles"
-      log "-------------"
+      log "$(($activatedRoles | Measure-Object).Count) activated role(s) found"
+      log "---------------------------"
       $activatedRoles |
           Format-List ScopeDisplayName,PrincipalDisplayName,RoleDefinitionDisplayName
+    }
+    else {
+      log "No active role(s) found."
     }
 
     $expirationDuration = "PT{0}H" -f $hours #[XmlConvert]::ToString([TimeSpan]::FromHours($Hours))
@@ -108,6 +111,9 @@ process {
             }
         }
     }
+  }
+  else {
+    log "No eligible role(s) found."
   }
 }
 end {
