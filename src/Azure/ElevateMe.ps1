@@ -61,16 +61,16 @@ process {
   $activatedRolesIds = $activatedRoles.LinkedRoleEligibilityScheduleId
 
   if($null -ne $eligibleRoles) {
-    log "$(($eligibleRoles | Measure-Object).Count) eligible role(s) found"
-    log "--------------------------"
+    log "  $(($eligibleRoles | Measure-Object).Count) eligible role(s) found"
+    log "  --------------------------"
     $eligibleRoles | 
-        Format-List Id,ScopeDisplayName,PrincipalDisplayName,RoleDefinitionDisplayName
+        Format-Table -AutoSize PrincipalDisplayName,RoleDefinitionDisplayName,EndDateTime
     
     if($null -ne $activatedRoles) {
-      log "$(($activatedRoles | Measure-Object).Count) activated role(s) found"
-      log "---------------------------"
+      log "  $(($activatedRoles | Measure-Object).Count) activated role(s) found"
+      log "  ---------------------------"
       $activatedRoles |
-          Format-List ScopeDisplayName,PrincipalDisplayName,RoleDefinitionDisplayName
+          Format-Table -AutoSize PrincipalDisplayName,RoleDefinitionDisplayName,EndDateTime
     }
     else {
       log "No active role(s) found."
@@ -86,11 +86,11 @@ process {
         Where-Object {$rolesToIgnore -notcontains $_.RoleDefinitionDisplayName} |
         ForEach-Object {
             $roleToActivate = $_
-            log "Activating role:"
-            log "  ID:       " $roleToActivate.Id
-            log "  Principal:" $roleToActivate.PrincipalDisplayName
-            log "  Role:     " $roleToActivate.RoleDefinitionDisplayName
-            log "  Scope:    " $roleToActivate.Scope
+            log "  Activating role:"
+            log "    ID:       " $roleToActivate.Id
+            log "    Principal:" $roleToActivate.PrincipalDisplayName
+            log "    Role:     " $roleToActivate.RoleDefinitionDisplayName
+            log "    Scope:    " $roleToActivate.Scope
             $roleActivateParams = @{
                 Name                            = New-Guid
                 Scope                           = $roleToActivate.Scope
@@ -113,7 +113,7 @@ process {
     }
   }
   else {
-    log "No eligible role(s) found."
+    log "  No eligible role(s) found."
   }
 }
 end {
