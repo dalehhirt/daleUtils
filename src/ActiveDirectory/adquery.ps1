@@ -13,6 +13,9 @@ $users | sort path | ft @{label="samaccountname";expression={$_.properties.samac
 .EXAMPLE
 $users = C:\work\query.ps1 -name "groupname" -PassThrough -group
 $users | sort path | ft @{label="samaccountname";expression={$_.properties.samaccountname}},@{label="DisplayName";expression={$_.properties.displayname}}
+.EXAMPLE
+# Find by property name
+C:\personal\daleUtils\src\ActiveDirectory\adquery.ps1 -PassThrough |where {$_.properties.employeenumber -eq "3"} | ft @{label="samaccountname";expression={$_.properties.samaccountname}},@{label="EmployeeNumber";expression={$_.properties.employeenumber}}
 #>
 [CmdletBinding(SupportsShouldProcess=$true)]
 param(
@@ -89,12 +92,17 @@ begin {
   }
 
   function Get-User() {
-    param($rootOu, $userName)
+    param($Searcher, $userName)
 
-    $filter = "(&(objectClass=user)(samAccountName=*$userName*))"
+    $filter = "(objectClass=user)"
+    if(![System.String]::IsNullOrWhiteSpace($userName)) {
+        $filter = "(&$filter(samAccountName=*$userName*))"
+    }
+
     $Searcher.Filter = $filter
     $Searcher.PropertiesToLoad.Clear()
     $Searcher.PropertiesToLoad.Add("memberOf") | out-null
+    $Searcher.PropertiesToLoad.Add("msDS-UserPasswordExpiryTimeComputed") | out-null
     $Searcher.PropertiesToLoad.Add("*") | out-null
     return $searcher.FindAll()
   }
@@ -102,7 +110,11 @@ begin {
   function Get-Group() {
     param($Searcher, $groupName)
 
-    $filter = "(&(objectClass=group)(name=*$groupName*))"
+    $filter = "(objectClass=group)"
+    if(![System.String]::IsNullOrWhiteSpace($groupName)) {
+        $filter = "(&$filter(name=*$groupName*))"
+    }
+
     $Searcher.Filter = $filter
     $Searcher.PropertiesToLoad.Clear()  | out-null
     $Searcher.PropertiesToLoad.Add("member") | out-null
@@ -136,10 +148,12 @@ begin {
 process {
   $returnValue = [System.Collections.ArrayList]::new()
   Using-Object($Searcher = New-Object DirectoryServices.DirectorySearcher) {
+    log "Creating Searcher Object"
     $Searcher.SearchRoot = New-Object System.DirectoryServices.DirectoryEntry("LDAP://$($rootOu)")
     $Searcher.PageSize = 1001  # This should enable us to get all objects
     if($group) {
-      $results = Get-Group $Searcher $name
+      log "Searching groups for $name"
+      $results = Get-Group -Searcher $Searcher -groupName $name
       if($PassThrough) {
         $results | ForEach-Object {[void]$returnValue.Add($_)}
       }
@@ -151,14 +165,18 @@ process {
           $properties = $result.Properties
 
           log "  Members:"
-          $properties["member"] | ForEach-Object {log "  " $_}
+          $properties["member"] | Sort-Object | ForEach-Object {log "  " $_}
           log "  Properties"
-          $properties.keys | Sort-Object | ForEach-Object {write-properties -level 2 -key $_ -property $properties[$_]}
+          $properties.keys | Sort-Object | ForEach-Object {
+            $propertyKey = $_
+            write-properties -level 2 -key $propertyKey -property $properties[$propertyKey]
+          }
         }
       }
     }
     else {
-      $results = Get-User $Searcher $name
+      log "Searching users for $name"
+      $results = Get-User -Searcher $Searcher -userName $name
       if($PassThrough) {
         $results | ForEach-Object {[void]$returnValue.Add($_)}
       }
@@ -185,7 +203,19 @@ process {
           }
 
           log "  Properties"
-          $properties.keys | Sort-Object | ForEach-Object {write-properties -level 2 -key $_ -property $properties[$_]}
+          $properties.keys | Sort-Object | ForEach-Object {
+                        $propertyKey = $_
+            switch ($propertyKey) {
+              # "msds-userpasswordexpirytimecomputed" { 
+              #   write-properties -level 2 -key $propertyKey -property $properties[$propertyKey]
+              #   write-properties -level 2 -key $propertyKey -property ([System.TimeSpan]::FromTicks(([long] $properties[$propertyKey][0])))
+              #   write-properties -level 2 -key $propertyKey -property ([System.DateTime]::Now.AddTicks(([long] $properties[$propertyKey][0])))
+              #  }
+              Default {
+                write-properties -level 2 -key $propertyKey -property $properties[$propertyKey]
+              }
+            }
+          }
         }
       }
     }
