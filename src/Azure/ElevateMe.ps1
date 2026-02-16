@@ -8,7 +8,7 @@ C:\personal\daleUtils\src\Azure\ElevateMe.ps1 -Justification "Terraform Deployme
 .EXAMPLE
 Get-AzSubscription | foreach {C:\personal\daleUtils\src\Azure\ElevateMe.ps1 -subscriptionId $_.SubscriptionId -Justification "Terraform Deployment" -whatif}
 .EXAMPLE
-Get-Azsubscription| sort Name | C:\personal\daleUtils\src\Azure\ElevateMe.ps1 -Justification "Terraform Deployment" 
+Get-AzSubscription | Sort-Object Name | C:\personal\daleUtils\src\Azure\ElevateMe.ps1 -Justification "Terraform Deployment"
 #>
 [CmdletBinding(SupportsShouldProcess = $true)]
 param(
