@@ -72,6 +72,10 @@
 	repacker = repack -a -d -f --depth=300 --window=300 --window-memory=1g
 	new = init -b main
 
+	wta = "worktree add '$1' '$2'"
+	wtr = "worktree remove '../$1'"
+	wtl = worktree list
+
 [user]
 	name = Dale Hirt
 [diff]
