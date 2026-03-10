@@ -72,8 +72,28 @@
 	repacker = repack -a -d -f --depth=300 --window=300 --window-memory=1g
 	new = init -b main
 
+	cp = cherry-pick
+
 	# Worktree aliases
 	wtl = worktree list
+
+	# This shows what the path would be if we add a work tree for the given branch
+	wtp = "!f() { WORKTREE_REPO_DIR=$(git worktree list | head -n 1 | cut -d ' ' -f 1)'.worktrees/'$(echo $1 | sed s,/,-,); echo $WORKTREE_REPO_DIR; }; f"
+
+	# This adds an existing branch as a worktree.
+	# Path: <main repo dir>.worktrees/<branch name>
+	wta = "!f() { WORKTREE_REPO_DIR=$(git worktree list | head -n 1 | cut -d ' ' -f 1)'.worktrees/'$(echo $1 | sed s,/,-,); \
+git worktree add $1 $WORKTREE_REPO_DIR; \
+}; f"
+
+	# This adds a new branch as a worktree.
+	# Path: <main repo dir>.worktrees/<branch name>
+	wtab = "!f() { WORKTREE_REPO_DIR=$(git worktree list | head -n 1 | cut -d ' ' -f 1)'.worktrees/'$(echo $1 | sed s,/,-,); \
+git worktree add -b $1 $WORKTREE_REPO_DIR; \
+}; f"
+
+	# This adds a new branch at the given path
+	wna = '!f() { git worktree add "$1"; }; f'
 
 [user]
 	name = Dale Hirt
