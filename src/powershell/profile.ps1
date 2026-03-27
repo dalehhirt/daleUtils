@@ -1,4 +1,3 @@
-# From laptop
 <#
 .DESCRIPTION
   PowerShell Profile file.
@@ -13,22 +12,32 @@ code $profile.CurrentUserAllHosts
 #-------------------------
 
 function log() {
-  write-host ">>> [$($env:COMPUTERNAME)]" ((Get-Date).ToUniversalTime().ToString('u')) "$args" -ForeGroundColor Yellow
+  write-host ">>> [$($env:COMPUTERNAME)]" ((Get-Date).ToUniversalTime().ToString('u')) "$args" -ForeGroundColor Green
 }
 
 function addto-Env () {
    param($path)
    $paths = $env:path -split ";"
-   if($paths -notcontains $path) {
-       log "Adding to `$env:path: $path"
-       $env:path += ";$path"
-   }
+
+   if (!(Test-Path $path)) {
+    log "$Path does not exist.  Not adding to `$env:path."
+    return
+  }
+
+  if ($paths -contains $path) {
+    log "`$env:path already contains $path"
+    return
+  }
+
+  log "Adding to `$env:path: $path"
+  $env:path += ";$path"
+
 }
 
 # Each instance of Powershell gets its own stack name
-$ForeachDirectoryStackName = (New-Guid).ToString()
 function foreach-directory() {
   param ($scriptBlock)
+  $ForeachDirectoryStackName = (New-Guid).ToString()
   Get-ChildItem -path . -Directory | ForEach-Object {
     try {
         # Code that might throw an error
@@ -110,6 +119,98 @@ output "name" {
   }
 }
 
+function Format-Terraform {
+  [CmdletBinding()]
+  param (
+    # Specifies a path to one or more locations.
+    [Parameter(Mandatory=$true,
+               Position=0,
+               ParameterSetName="Path",
+               ValueFromPipeline=$true,
+               ValueFromPipelineByPropertyName=$true,
+               HelpMessage="Path to one or more locations.")]
+    [Alias("PSPath")]
+    [ValidateNotNullOrEmpty()]
+    [string[]]
+    $Path
+  )
+  
+  begin {
+    $stackName = "terraform-fmt-$(New-Guid)"
+  }
+  
+  process {
+    foreach ($currentPath in $Path) {
+      <# $currentPath is the current item #>
+      if(!(Test-Path $currentPath)) {
+        Write-Error "$CurrentPath does not exist!"
+        return
+      }
+
+      try {
+        Push-Location -Path $Path -StackName $stackName
+        terraform fmt --recursive
+      }
+      catch {
+        # Display the primary exception message
+        log "An error occurred:" "$($_.Exception.Message)" 
+
+        # Display the full error object for detailed logging
+        log "Full Error Details: $_"
+      }
+      finally {
+        Pop-Location -StackName $stackName
+      }
+    }    
+  }
+  
+  end {
+    
+  }
+}
+
+function Loop-Command {
+  [CmdletBinding()]
+  param (
+    $scriptBlock,
+    $retryTimeoutInSeconds = 20,
+    [switch]$DontClearScreen
+  )
+  
+  begin {
+    
+  }
+  
+  process {
+    while ($true) {
+      if (!$DontClearScreen) {
+        Clear-Host
+        log "Cleared Screen."
+      }
+      try {
+        log "Running $scriptBlock"
+        & $scriptBlock
+      }
+      catch {
+        # Display the primary exception message
+        log "An error occurred:" "$($_.Exception.Message)" 
+
+        # Display the full error object for detailed logging
+        log "Full Error Details: $_"
+      }
+      finally {
+        log "Waiting $retryTimeoutInSeconds..."
+        log "Press Ctrl+C to stop looping"
+        Start-Sleep -Seconds $retryTimeoutInSeconds
+      }
+    }
+  }
+  
+  end {
+    
+  }
+}
+
 function Using-Object() {
     <#
     .DESCRIPTION
@@ -170,13 +271,21 @@ function prompt {
 }
 
 #-------------------------
-# Main Code
+# Main
 #-------------------------
-
-Import-Module posh-git
-
 log "Loading $PSCommandPath"
 # log "Setting up `$Profile.CurrentUserAllHosts $($Profile.CurrentUserAllHosts)"
+
+if ($null -ne (get-module -Name Posh-Git -ListAvailable -ErrorAction SilentlyContinue)) {
+  log "Loading posh-git"
+  Import-Module posh-git
+}
+
+# We do this because portable git might be redirected to the wrong .gitconfig
+if($env:HOME -ne $env:USERPROFILE) {
+  log "Resetting `$env:HOME from $($env:home) to $($env:USERPROFILE)"
+  $env:HOME = $env:USERPROFILE
+}
 
 addto-Env "$($env:USERPROFILE)\OneDrive - Mavis Tire\Documents\tools\azcli\bin"
 addto-Env "$($env:USERPROFILE)\OneDrive - Mavis Tire\Documents\tools\terraform"
@@ -184,4 +293,4 @@ addto-Env "$($env:USERPROFILE)\OneDrive - Mavis Tire\Documents\tools\Graphviz\bi
 addto-env "$($env:USERPROFILE)\OneDrive - Mavis Tire\Documents\tools\sysinternals"
 addto-env "$($env:USERPROFILE)\OneDrive - Mavis Tire\Documents\tools\go\bin"
 addto-env "$($env:USERPROFILE)\OneDrive - Mavis Tire\Documents\tools\github\bin"
-addto-env "$($env:USERPROFILE)\OneDrive - Mavis Tire\Documents\tools\git\bin"
+addto-env "$($env:USERPROFILE)\OneDrive - Mavis Tire\Documents\tools\git\cmd"
