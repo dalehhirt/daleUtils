@@ -243,6 +243,21 @@ function Using-Object() {
     }
 }
 
+function pd() {
+  if($args.Count) {
+    $location = $args[0]
+    if(Test-Path $location -ErrorAction SilentlyContinue){
+      Push-Location $location
+    }
+    else {
+      Write-Error "No such location: $location"
+    }
+  }
+  else {
+    Pop-Location
+  }
+}
+
 function prompt {
 
     $host.ui.RawUI.WindowTitle = "Current Folder: $pwd"
