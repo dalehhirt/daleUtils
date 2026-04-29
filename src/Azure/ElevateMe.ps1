@@ -32,6 +32,8 @@ param(
   $rolesToIgnore = @("Reader")
 )
 begin {
+  $start = get-date
+  
   function log() {
     write-host ">>> [$($env:COMPUTERNAME)]" ((Get-Date).ToUniversalTime().ToString('u')) "$args" -ForeGroundColor Green
   }
@@ -153,5 +155,5 @@ process {
   }
 }
 end {
-  log "Finished"
+  log "Finished" ((get-date) - $start).ToString("hh\h\:mm\m\:ss\s")
 }
