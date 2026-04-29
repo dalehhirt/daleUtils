@@ -66,6 +66,8 @@
 			"[CmdletBinding(SupportsShouldProcess=$$true)]",
 			"param()",
 			"begin {",
+			"  $start = get-date",
+			"  ",
 			"  function log() {",
 			"    write-host \">>> [$($$env:COMPUTERNAME)]\" ((Get-Date).ToUniversalTime().ToString('u')) \"$$args\" -ForeGroundColor Green",
 			"  }",
@@ -91,6 +93,8 @@
 			"\t$1",
 			"}",
 			"end {",
+			"  $end = get-date",
+			"  log \"Finished\" (($end - $start).ToString(\"hh\\h\\:mm\\m\\:ss\\s\"))",
 			"}"
 		]
 	},
@@ -111,6 +115,8 @@
 			"  [string]\\$subscriptionId",
 			")",
 			"begin {",
+			"  $start = get-date",
+			"  ",
 			"  function log() {",
 			"    write-host \">>> [\\$(\\$env:COMPUTERNAME)]\" ((Get-Date).ToUniversalTime().ToString('u')) \"\\$args\" -ForeGroundColor Green",
 			"  }",
@@ -165,7 +171,8 @@
 			"}",
 			"",
 			"end {",
-			"",
+			"  $end = get-date",
+			"  log \"Finished\" (($end - $start).ToString(\"hh\\h\\:mm\\m\\:ss\\s\"))",
 			"}"
 		]
 	},
