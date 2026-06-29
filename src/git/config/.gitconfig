@@ -4,6 +4,7 @@
 	fscache = true
 	editor = code --wait # VS Code
 	autocrlf = false
+	longpaths = true
 [push]
 	default = simple
 [credential]
@@ -41,7 +42,8 @@
 
 	br = branch
 	branches = branch -a
-	old-branch-delete = !git fetch -p && git branch -vv | awk \"/: gone]/{print \\$1}\" | xargs git branch -D -v
+	old-branch-delete = delete-old-branches
+	delete-old-branches = !git fetch -p && git branch -vv | awk \"/: gone]/{print \\$1}\" | xargs git branch -D -v
 	branch-name = rev-parse --abbrev-ref HEAD
 
 	stashes = stash list
@@ -93,19 +95,28 @@ git worktree add -b $1 $WORKTREE_REPO_DIR; \
 }; f"
 
 	# This adds a new branch at the given path
-	wna = '!f() { git worktree add "$1"; }; f'
+	wta = worktree add
+	wtr = worktree remove
 
 [user]
 	name = Dale Hirt
 [diff]
-	tool = bc
-	guitool = bc
+	tool = winmerge
+	guitool = winmerge
 [difftool "bc"]
 	path = c:/Program Files/Beyond Compare 4/bcomp.exe
 	cmd = \"c:/Program Files/Beyond Compare 4/bcomp.exe\" \"$LOCAL\" \"$REMOTE\"
-[merge]
-	tool = bc
-	guitool = bc
+[difftool "winmerge"]
+	cmd = "'C:/Users/dhirt.MAVIS-HQ/AppData/Local/Programs/WinMerge/WinMergeU.exe'" -e -u -wl -wr "$LOCAL" "$REMOTE"
+[mergetool]
+	prompt = false
+	keepBackup = false[merge]
+	tool = winmerge
+	guitool = winmerge
+[mergetool "winmerge"]
+    # Path must point to your WinMergeU.exe
+    cmd = "'C:/Users/dhirt.MAVIS-HQ/AppData/Local/Programs/WinMerge//WinMergeU.exe'"  -e -u -dl "Local" -dr "Remote" "$LOCAL" "$REMOTE" "$MERGED"
+    trustExitCode = true
 [mergetool "bc"]
 	path = c:/Program Files/Beyond Compare 4/bcomp.exe
 	cmd = \"c:/Program Files/Beyond Compare 4/bcomp.exe\" \"$LOCAL\" \"$REMOTE\" \"$BASE\" \"$MERGED\"
@@ -143,3 +154,4 @@ git worktree add -b $1 $WORKTREE_REPO_DIR; \
 	autoStash = false
 	autosquash = false
 	updateRefs = false
+
