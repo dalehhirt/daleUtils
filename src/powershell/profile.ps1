@@ -289,7 +289,15 @@ function prompt {
 # Main
 #-------------------------
 log "Loading $PSCommandPath"
-# log "Setting up `$Profile.CurrentUserAllHosts $($Profile.CurrentUserAllHosts)"
+
+# Make sure we can find git cmd just in case
+addto-Env "$($env:USERPROFILE)\OneDrive - Mavis Tire\Documents\tools\azcli\bin"
+addto-Env "$($env:USERPROFILE)\OneDrive - Mavis Tire\Documents\tools\terraform"
+addto-Env "$($env:USERPROFILE)\OneDrive - Mavis Tire\Documents\tools\Graphviz\bin"
+addto-env "$($env:USERPROFILE)\OneDrive - Mavis Tire\Documents\tools\sysinternals"
+addto-env "$($env:USERPROFILE)\OneDrive - Mavis Tire\Documents\tools\go\bin"
+addto-env "$($env:USERPROFILE)\OneDrive - Mavis Tire\Documents\tools\github\bin"
+addto-env "$($env:USERPROFILE)\OneDrive - Mavis Tire\Documents\tools\git\cmd"
 
 if ($null -ne (get-module -Name Posh-Git -ListAvailable -ErrorAction SilentlyContinue)) {
   log "Loading posh-git"
@@ -302,10 +310,3 @@ if($env:HOME -ne $env:USERPROFILE) {
   $env:HOME = $env:USERPROFILE
 }
 
-addto-Env "$($env:USERPROFILE)\OneDrive - Mavis Tire\Documents\tools\azcli\bin"
-addto-Env "$($env:USERPROFILE)\OneDrive - Mavis Tire\Documents\tools\terraform"
-addto-Env "$($env:USERPROFILE)\OneDrive - Mavis Tire\Documents\tools\Graphviz\bin"
-addto-env "$($env:USERPROFILE)\OneDrive - Mavis Tire\Documents\tools\sysinternals"
-addto-env "$($env:USERPROFILE)\OneDrive - Mavis Tire\Documents\tools\go\bin"
-addto-env "$($env:USERPROFILE)\OneDrive - Mavis Tire\Documents\tools\github\bin"
-addto-env "$($env:USERPROFILE)\OneDrive - Mavis Tire\Documents\tools\git\cmd"
