@@ -50,6 +50,7 @@
 	snapshot = !git stash save \"snapshot: $(date)\" && git stash apply stash@{0}
 
 	root = rev-parse --show-toplevel
+
 	lg = log --graph --pretty=format:'%Cred%h -%C(yellow)%d%Creset %s %Cgreen(%ci) %C(bold blue)<%an>'
 	lol = log --graph --decorate --pretty=oneline --abbrev-commit
 	lola = log --graph --decorate --pretty=oneline --abbrev-commit --all
@@ -59,6 +60,7 @@
 	who = shortlog --summary --no-merges --
 	whorank = shortlog --summary --numbered --no-merges
 	whoemail = shortlog --summary --email --all --no-merges
+
 	ls = ls-files
 	ign = ls-files -o -i --exclude-standard
 	ignored = ls-files -o -i --exclude-standard
