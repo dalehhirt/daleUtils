@@ -87,13 +87,13 @@ begin {
     }
   }
 
-  function Get-UserGroups() {
+  function Get-Groups() {
     param($Searcher, $distinguishedName)
 
     # This is the LDAP filter we need to use in order to get recursive (implicit) group membership
     $LDAPGroupMemberFilterRecursive = "(member:1.2.840.113556.1.4.1941:={0})"
 
-    $Searcher.Filter = $LDAPGroupMemberFilterRecursive -f $distinguishedName#, $foundName
+    $Searcher.Filter = $LDAPGroupMemberFilterRecursive -f $distinguishedName
     $Searcher.PropertiesToLoad.Clear()
     $Searcher.SearchScope = [DirectoryServices.SearchScope]::Subtree
 
@@ -123,6 +123,27 @@ begin {
     return $searcher.FindAll()
   }
 
+  function Write-MemberOf() {
+    param(
+      $memberOf,
+      $distinguishedName,
+      $searcher
+    )
+      $groups = $memberOf  | sort-object 
+
+      log "  Member of $($groups.count) groups explicitly:"
+      $groups | ForEach-Object {log "  " $_}
+      
+      $ugResult = Get-Groups -Searcher $searcher -distinguishedName $distinguishedName
+      if($ugResult) {
+        $ugGroups = $ugResult | ForEach-Object {$_.Properties["Distinguishedname"]} | Where-Object {$groups -notcontains $_} | sort-Object
+        
+        log "  Member of $($ugGroups.count) groups implicitly:"
+        $ugGroups | ForEach-Object {log "  " $_}
+      }
+
+  }
+
   function Write-User() {
     param(
       [Parameter(ValueFromPipeline=$true)]
@@ -132,19 +153,12 @@ begin {
     process {
       log "Found user:" $user.path
       $properties = $user.Properties
-      $groups = $properties["memberOf"]  | sort-object 
-      log "  Member of $($groups.count) groups explicitly:"
-      $groups| ForEach-Object {log "  " $_}
-      $distinguishedName=$properties["distinguishedName"]
-      $ugResult = Get-UserGroups -Searcher $searcher -distinguishedName $distinguishedName[0]
-      if($ugResult) {
-        $ugGroups = $ugResult | ForEach-Object {$_.Properties["Distinguishedname"]} | Where-Object {$groups -notcontains $_} | sort-Object
-        
-        log "  Member of $($ugGroups.count) groups implicitly:"
-        $ugGroups | ForEach-Object {log "  " $_}
-      }
+
+      Write-MemberOf -memberOf $properties["memberOf"] -searcher $searcher -distinguishedName $properties["distinguishedname"][0]
+
+      $filterProperties = @("memberOf")
       log "  Properties"
-      $properties.keys | Sort-Object | ForEach-Object {
+      $properties.keys | where-object {$filterProperties -notcontains $_} | Sort-Object | ForEach-Object {
         $propertyKey = $_
         write-properties -level 2 -key $propertyKey -property $properties[$propertyKey]
       }
@@ -163,13 +177,14 @@ begin {
     $Searcher.Filter = $filter
     $Searcher.PropertiesToLoad.Clear()  | out-null
     $Searcher.PropertiesToLoad.Add("member") | out-null
+    $Searcher.PropertiesToLoad.Add("distinguishedname") | out-null
 
     if ($VerbosePreference -ne 'SilentlyContinue') {
     # Verbose mode is currently active
       $Searcher.PropertiesToLoad.Add("*") | out-null
     }
 
-    return $searcher.FindAll()
+    return $Searcher.FindAll()
   }
 
   function Write-Group() {
@@ -185,8 +200,11 @@ begin {
       log "  Members:"
       $properties["member"] | Sort-Object | ForEach-Object {log "  " $_}
 
+      Write-MemberOf -memberOf $properties["memberOf"] -searcher $searcher -distinguishedName $properties["distinguishedname"][0]
+
+      $filterProperties = @("member", "memberOf")
       log "  Properties"
-      $properties.keys | Sort-Object | ForEach-Object {
+      $properties.keys | Where-Object {$_ -notin $filterProperties} | Sort-Object | ForEach-Object {
         $propertyKey = $_
         write-properties -level 2 -key $propertyKey -property $properties[$propertyKey]
       }
@@ -205,6 +223,8 @@ begin {
     $Searcher.Filter = $filter
     $Searcher.PropertiesToLoad.Clear()  | out-null
     $Searcher.PropertiesToLoad.Add("dNSHostName") | out-null
+    $Searcher.PropertiesToLoad.Add("memberOf") | out-null
+    $Searcher.PropertiesToLoad.Add("distinguishedname") | out-null
 
     if ($VerbosePreference -ne 'SilentlyContinue') {
     # Verbose mode is currently active
@@ -213,6 +233,7 @@ begin {
 
     return $searcher.FindAll()
   }
+
   function Write-Computer() {
     param(
       [Parameter(ValueFromPipeline=$true)]
@@ -223,8 +244,11 @@ begin {
       log "Found computer" $computer.path
       $properties = $computer.Properties
 
+      Write-MemberOf -memberOf $properties["memberOf"] -searcher $searcher -distinguishedName $properties["distinguishedname"][0]
+
+      $filterProperties = @("memberOf")
       log "  Properties"
-      $properties.keys | Sort-Object | ForEach-Object {
+      $properties.keys | Where-Object {$_ -notin $filterProperties} | Sort-Object | ForEach-Object {
         $propertyKey = $_
         write-properties -level 2 -key $propertyKey -property $properties[$propertyKey]
       }
