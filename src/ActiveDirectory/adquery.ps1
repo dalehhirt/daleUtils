@@ -103,11 +103,12 @@ begin {
   function Get-User() {
     param($Searcher, $userName)
 
-    $filter = "(objectClass=user)"
+    $filter = "(sAMAccountType=805306368)"
     if(![System.String]::IsNullOrWhiteSpace($userName)) {
         $filter = "(&$filter(samAccountName=*$userName*))"
     }
 
+    log "Filter: $filter"
     $Searcher.Filter = $filter
     $Searcher.PropertiesToLoad.Clear()
     $Searcher.PropertiesToLoad.Add("memberOf") | out-null
@@ -147,11 +148,12 @@ begin {
   function Get-Group() {
     param($Searcher, $groupName)
 
-    $filter = "(objectClass=group)"
+    $filter = "(sAMAccountType=268435456)"
     if(![System.String]::IsNullOrWhiteSpace($groupName)) {
         $filter = "(&$filter(name=*$groupName*))"
     }
 
+    log "Filter: $filter"
     $Searcher.Filter = $filter
     $Searcher.PropertiesToLoad.Clear()  | out-null
     $Searcher.PropertiesToLoad.Add("member") | out-null
@@ -183,11 +185,12 @@ begin {
   function Get-Computer() {
     param($Searcher, $computerName)
 
-    $filter = "(objectClass=computer)"
+    $filter = "(sAMAccountType=805306369)"
     if(![System.String]::IsNullOrWhiteSpace($computerName)) {
         $filter = "(&$filter(name=*$computerName*))"
     }
 
+    log "Filter: $filter"
     $Searcher.Filter = $filter
     $Searcher.PropertiesToLoad.Clear()  | out-null
     $Searcher.PropertiesToLoad.Add("dNSHostName") | out-null
@@ -266,7 +269,7 @@ process {
     $Searcher.PageSize = 1001  # This should enable us to get all objects
     if($SamAccountName) {
       log "Searching for Person: $SamAccountName" -ForegroundColor Cyan
-      $results = Get-User -Searcher $Searcher -userName $SamAccountName
+      $results = Get-User -Searcher $Searcher -userName $SamAccountName | sort Path
       $results | ForEach-Object {[void]$returnValue.Add($_)}
       if(!$PassThrough) {
         $results | Write-User -searcher $Searcher
@@ -274,7 +277,7 @@ process {
     }
     if ($GroupName) {
       log "Searching for Group: $GroupName" -ForegroundColor Green
-      $results = Get-Group -Searcher $Searcher -groupName $GroupName
+      $results = Get-Group -Searcher $Searcher -groupName $GroupName | sort Path
       $results | ForEach-Object {[void]$returnValue.Add($_)}
       if(!$PassThrough) {
         $results | Write-Group -searcher $Searcher
@@ -282,7 +285,7 @@ process {
     }
     if ($ComputerName) {
       log "Searching for Computer: $ComputerName" -ForegroundColor Yellow
-      $results = Get-Computer -Searcher $Searcher -computerName $ComputerName
+      $results = Get-Computer -Searcher $Searcher -computerName $ComputerName | sort Path
       $results | ForEach-Object {[void]$returnValue.Add($_)}
       if(!$PassThrough) {
         $results | Write-Computer -searcher $Searcher
