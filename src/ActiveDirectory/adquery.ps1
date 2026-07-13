@@ -111,9 +111,15 @@ begin {
     log "Filter: $filter"
     $Searcher.Filter = $filter
     $Searcher.PropertiesToLoad.Clear()
+    $Searcher.PropertiesToLoad.Add("distinguishedName") | out-null
     $Searcher.PropertiesToLoad.Add("memberOf") | out-null
     $Searcher.PropertiesToLoad.Add("msDS-UserPasswordExpiryTimeComputed") | out-null
-    $Searcher.PropertiesToLoad.Add("*") | out-null
+
+    if ($VerbosePreference -ne 'SilentlyContinue') {
+    # Verbose mode is currently active
+      $Searcher.PropertiesToLoad.Add("*") | out-null
+    }
+
     return $searcher.FindAll()
   }
 
@@ -157,7 +163,12 @@ begin {
     $Searcher.Filter = $filter
     $Searcher.PropertiesToLoad.Clear()  | out-null
     $Searcher.PropertiesToLoad.Add("member") | out-null
-    $Searcher.PropertiesToLoad.Add("*") | out-null
+
+    if ($VerbosePreference -ne 'SilentlyContinue') {
+    # Verbose mode is currently active
+      $Searcher.PropertiesToLoad.Add("*") | out-null
+    }
+
     return $searcher.FindAll()
   }
 
@@ -194,7 +205,12 @@ begin {
     $Searcher.Filter = $filter
     $Searcher.PropertiesToLoad.Clear()  | out-null
     $Searcher.PropertiesToLoad.Add("dNSHostName") | out-null
-    $Searcher.PropertiesToLoad.Add("*") | out-null
+
+    if ($VerbosePreference -ne 'SilentlyContinue') {
+    # Verbose mode is currently active
+      $Searcher.PropertiesToLoad.Add("*") | out-null
+    }
+
     return $searcher.FindAll()
   }
   function Write-Computer() {
