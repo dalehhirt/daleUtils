@@ -19,9 +19,18 @@ C:\personal\daleUtils\src\ActiveDirectory\adquery.ps1 -PassThrough |where {$_.pr
 #>
 [CmdletBinding(SupportsShouldProcess=$true)]
 param(
+  # Person Parameter Set
+  [Parameter(Mandatory = $true, ParameterSetName = 'Person')]
+  [string]$SamAccountName,
+  # Group Parameter Set
+  [Parameter(Mandatory = $true, ParameterSetName = 'Group')]
+  [string]$GroupName,
+  # Computer Parameter Set
+  [Parameter(Mandatory = $true, ParameterSetName = 'Computer')]
+  [string]$ComputerName,
+
+  # Common Parameter Set
   $RootOU = "DC=LOCAL,DC=MAVIS-HQ,DC=COM",
-  $name = "",
-  [switch]$group,
   [switch]$PassThrough
 )
 begin {
@@ -107,6 +116,43 @@ begin {
     return $searcher.FindAll()
   }
 
+  function Write-User() {
+    param(
+      [Parameter(ValueFromPipeline=$true)]
+      $user,
+      $searcher
+    )
+    process {
+      log "Found user:" $user.path
+      $properties = $user.Properties
+      $groups = $properties["memberOf"]  | sort-object 
+      log "  Member of $($groups.count) groups explicitly:"
+      $groups| ForEach-Object {log "  " $_}
+      $distinguishedName=$properties["distinguishedName"]
+      $ugResult = Get-UserGroups -Searcher $searcher -distinguishedName $distinguishedName[0]
+      if($ugResult) {
+        $ugGroups = $ugResult | ForEach-Object {$_.Properties["Distinguishedname"]} | Where-Object {$groups -notcontains $_} | sort-Object
+        
+        log "  Member of $($ugGroups.count) groups implicitly:"
+        $ugGroups | ForEach-Object {log "  " $_}
+      }
+      log "  Properties"
+      $properties.keys | Sort-Object | ForEach-Object {
+                    $propertyKey = $_
+        switch ($propertyKey) {
+          # "msds-userpasswordexpirytimecomputed" { 
+          #   write-properties -level 2 -key $propertyKey -property $properties[$propertyKey]
+          #   write-properties -level 2 -key $propertyKey -property ([System.TimeSpan]::FromTicks(([long] $properties[$propertyKey][0])))
+          #   write-properties -level 2 -key $propertyKey -property ([System.DateTime]::Now.AddTicks(([long] $properties[$propertyKey][0])))
+          #  }
+          Default {
+            write-properties -level 2 -key $propertyKey -property $properties[$propertyKey]
+          }
+        }
+      }
+    }
+  }
+
   function Get-Group() {
     param($Searcher, $groupName)
 
@@ -122,6 +168,59 @@ begin {
     return $searcher.FindAll()
   }
 
+  function Write-Group() {
+    param(
+      [Parameter(ValueFromPipeline=$true)]
+      $group,
+      $searcher
+    )
+    process {
+      log "Found group" $group.path
+      $properties = $group.Properties
+
+      log "  Members:"
+      $properties["member"] | Sort-Object | ForEach-Object {log "  " $_}
+
+      log "  Properties"
+      $properties.keys | Sort-Object | ForEach-Object {
+        $propertyKey = $_
+        write-properties -level 2 -key $propertyKey -property $properties[$propertyKey]
+      }
+    }
+  }
+
+  function Get-Computer() {
+    param($Searcher, $computerName)
+
+    $filter = "(objectClass=computer)"
+    if(![System.String]::IsNullOrWhiteSpace($computerName)) {
+        $filter = "(&$filter(name=*$computerName*))"
+    }
+
+    $Searcher.Filter = $filter
+    $Searcher.PropertiesToLoad.Clear()  | out-null
+    $Searcher.PropertiesToLoad.Add("dNSHostName") | out-null
+    $Searcher.PropertiesToLoad.Add("*") | out-null
+    return $searcher.FindAll()
+  }
+  function Write-Computer() {
+    param(
+      [Parameter(ValueFromPipeline=$true)]
+      $computer,
+      $searcher
+    )
+    process {
+      log "Found computer" $computer.path
+      $properties = $computer.Properties
+
+      log "  Properties"
+      $properties.keys | Sort-Object | ForEach-Object {
+        $propertyKey = $_
+        write-properties -level 2 -key $propertyKey -property $properties[$propertyKey]
+      }
+    }
+  }
+  
   function write-properties(){
     param($level, $key, $property)
     $indent = "  " * $level
@@ -151,72 +250,28 @@ process {
     log "Creating Searcher Object"
     $Searcher.SearchRoot = New-Object System.DirectoryServices.DirectoryEntry("LDAP://$($rootOu)")
     $Searcher.PageSize = 1001  # This should enable us to get all objects
-    if($group) {
-      log "Searching groups for $name"
-      $results = Get-Group -Searcher $Searcher -groupName $name
-      if($PassThrough) {
-        $results | ForEach-Object {[void]$returnValue.Add($_)}
-      }
-      else {
-        $results | ForEach-Object {
-          $result = $_
-          log "Found group" $result.path
-          [void]$returnValue.Add($result)
-          $properties = $result.Properties
-
-          log "  Members:"
-          $properties["member"] | Sort-Object | ForEach-Object {log "  " $_}
-          log "  Properties"
-          $properties.keys | Sort-Object | ForEach-Object {
-            $propertyKey = $_
-            write-properties -level 2 -key $propertyKey -property $properties[$propertyKey]
-          }
-        }
+    if($SamAccountName) {
+      log "Searching for Person: $SamAccountName" -ForegroundColor Cyan
+      $results = Get-User -Searcher $Searcher -userName $SamAccountName
+      $results | ForEach-Object {[void]$returnValue.Add($_)}
+      if(!$PassThrough) {
+        $results | Write-User -searcher $Searcher
       }
     }
-    else {
-      log "Searching users for $name"
-      $results = Get-User -Searcher $Searcher -userName $name
-      if($PassThrough) {
-        $results | ForEach-Object {[void]$returnValue.Add($_)}
+    if ($GroupName) {
+      log "Searching for Group: $GroupName" -ForegroundColor Green
+      $results = Get-Group -Searcher $Searcher -groupName $GroupName
+      $results | ForEach-Object {[void]$returnValue.Add($_)}
+      if(!$PassThrough) {
+        $results | Write-Group -searcher $Searcher
       }
-      else {
-        $results | ForEach-Object {
-          $result = $_
-          log "Found user:" $result.path
-
-          [void]$returnValue.Add($result)
-
-          $properties = $result.Properties
-
-          $groups = $properties["memberOf"]  | sort-object 
-          log "  Member of $($groups.count) groups explicitly:"
-          $groups| ForEach-Object {log "  " $_}
-
-          $distinguishedName=$properties["distinguishedName"]
-
-          $ugResult = Get-UserGroups -Searcher $Searcher -distinguishedName $distinguishedName[0]
-          if($ugResult) {
-            $ugGroups = $ugResult | ForEach-Object {$_.Properties["Distinguishedname"]} | where {$groups -notcontains $_} | sort-Object
-          log "  Member of $($ugGroups.count) groups implicitly:"
-            $ugGroups | ForEach-Object {log "  " $_}
-          }
-
-          log "  Properties"
-          $properties.keys | Sort-Object | ForEach-Object {
-                        $propertyKey = $_
-            switch ($propertyKey) {
-              # "msds-userpasswordexpirytimecomputed" { 
-              #   write-properties -level 2 -key $propertyKey -property $properties[$propertyKey]
-              #   write-properties -level 2 -key $propertyKey -property ([System.TimeSpan]::FromTicks(([long] $properties[$propertyKey][0])))
-              #   write-properties -level 2 -key $propertyKey -property ([System.DateTime]::Now.AddTicks(([long] $properties[$propertyKey][0])))
-              #  }
-              Default {
-                write-properties -level 2 -key $propertyKey -property $properties[$propertyKey]
-              }
-            }
-          }
-        }
+    }
+    if ($ComputerName) {
+      log "Searching for Computer: $ComputerName" -ForegroundColor Yellow
+      $results = Get-Computer -Searcher $Searcher -computerName $ComputerName
+      $results | ForEach-Object {[void]$returnValue.Add($_)}
+      if(!$PassThrough) {
+        $results | Write-Computer -searcher $Searcher
       }
     }
   }
