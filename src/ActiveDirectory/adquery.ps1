@@ -138,17 +138,8 @@ begin {
       }
       log "  Properties"
       $properties.keys | Sort-Object | ForEach-Object {
-                    $propertyKey = $_
-        switch ($propertyKey) {
-          # "msds-userpasswordexpirytimecomputed" { 
-          #   write-properties -level 2 -key $propertyKey -property $properties[$propertyKey]
-          #   write-properties -level 2 -key $propertyKey -property ([System.TimeSpan]::FromTicks(([long] $properties[$propertyKey][0])))
-          #   write-properties -level 2 -key $propertyKey -property ([System.DateTime]::Now.AddTicks(([long] $properties[$propertyKey][0])))
-          #  }
-          Default {
-            write-properties -level 2 -key $propertyKey -property $properties[$propertyKey]
-          }
-        }
+        $propertyKey = $_
+        write-properties -level 2 -key $propertyKey -property $properties[$propertyKey]
       }
     }
   }
@@ -221,8 +212,31 @@ begin {
     }
   }
   
+  function write-filetimeproperty() {
+    param($level, $key, $property)
+    $indent = "  " * $level
+    $neverExpiresValues = @(9223372036854775807, 0)
+    log "$($indent)$($key):"
+    for ($i = 0; $i -lt $property.length; $i++ ) {
+      log "$($indent)  Original Value[$i]: $($property[$i])"
+      if ($neverExpiresValues -contains $property[$i]) {
+        log "$($indent)  Computed Value([$i]: Never Expires"
+      }
+      else {
+        log "$($indent)  Computed Value[$i]:" ([DateTime]::FromFileTime($property[$i]))
+      }
+    }
+  }
+
   function write-properties(){
     param($level, $key, $property)
+    $filetimeProperties = @("msds-userpasswordexpirytimecomputed", "pwdlastset", "usncreated", "usnchanged", "lastlogon", "lastlogontimestamp", "accountexpires")
+
+    if ($filetimeProperties -contains $key) {
+      write-filetimeproperty -level $level -key $key -property $property
+      return
+    }
+
     $indent = "  " * $level
     if($property -is [System.DirectoryServices.ResultPropertyValueCollection] ) {
       $val = "$indent$key = ["
