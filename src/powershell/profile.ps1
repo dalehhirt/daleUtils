@@ -258,6 +258,15 @@ function pd() {
   }
 }
 
+function New-TabsForDirectory() {
+  Get-ChildItem -Directory | ForEach-Object {
+    $tabName = $_.Name
+    $tabPath = $_.FullName
+    log "Opening new tab for $tabName at $tabPath"
+    wt -w 0 -d $tabPath
+  }
+}
+
 function prompt {
 
     $host.ui.RawUI.WindowTitle = "Current Folder: $pwd"
