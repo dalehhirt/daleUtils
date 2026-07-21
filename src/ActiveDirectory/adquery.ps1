@@ -285,7 +285,7 @@ begin {
       $val = "$indent$key = ["
 
       if($property[0] -is [System.Byte[]]) {
-        $val += $property | foreach {"$_"}
+        $val += $property | ForEach-Object {"$_"}
       }
       else {
           $val += ($property | Sort-Object) -join ","
@@ -309,7 +309,7 @@ process {
     $Searcher.PageSize = 1001  # This should enable us to get all objects
     if($SamAccountName) {
       log "Searching for Person: $SamAccountName" -ForegroundColor Cyan
-      $results = Get-User -Searcher $Searcher -userName $SamAccountName | sort Path
+      $results = Get-User -Searcher $Searcher -userName $SamAccountName | Sort-Object Path
       $results | ForEach-Object {[void]$returnValue.Add($_)}
       if(!$PassThrough) {
         $results | Write-User -searcher $Searcher
@@ -317,7 +317,7 @@ process {
     }
     if ($GroupName) {
       log "Searching for Group: $GroupName" -ForegroundColor Green
-      $results = Get-Group -Searcher $Searcher -groupName $GroupName | sort Path
+      $results = Get-Group -Searcher $Searcher -groupName $GroupName | Sort-Object Path
       $results | ForEach-Object {[void]$returnValue.Add($_)}
       if(!$PassThrough) {
         $results | Write-Group -searcher $Searcher
@@ -325,7 +325,7 @@ process {
     }
     if ($ComputerName) {
       log "Searching for Computer: $ComputerName" -ForegroundColor Yellow
-      $results = Get-Computer -Searcher $Searcher -computerName $ComputerName | sort Path
+      $results = Get-Computer -Searcher $Searcher -computerName $ComputerName | Sort-Object Path
       $results | ForEach-Object {[void]$returnValue.Add($_)}
       if(!$PassThrough) {
         $results | Write-Computer -searcher $Searcher
