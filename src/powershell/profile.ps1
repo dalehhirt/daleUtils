@@ -10,10 +10,34 @@ code $profile.CurrentUserAllHosts
 #-------------------------
 # Functions
 #-------------------------
+function Initialize-Logging() {
+  Set-PSFConfig -Name PSFramework.Message.Style.Prefix -Value $true
+  Set-PSFConfig -Name PSFramework.Message.Style.Prefix.Host -Value ">>>"
+  Set-PSFConfig -Name PSFramework.Message.Style.Prefix.Verbose -Value ">>>"
+  Set-PSFConfig -Name PSFramework.Message.Info.Color -Value "Green"
+  $defaultTimeFormat = "yyyy'-'MM'-'dd'T'HH':'mm':'sszzzz"
+  Set-PSFConfig -Name PSFramework.Message.Style.TimeFormat -Value $defaultTimeFormat
+}
 
 function log() {
-  write-host ">>> [$($env:COMPUTERNAME)]" ((Get-Date).ToUniversalTime().ToString('u')) "$args" -ForeGroundColor Green
+  Write-PSFMessage -Level Host -Message "$args" -Target $env:COMPUTERNAME 
 }
+
+function log-error() {
+  [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseApprovedVerbs', '', Justification='Log error is more accurate')]
+  param()
+
+  Write-PSFMessage -Level Error -Message "$args" -Target $env:COMPUTERNAME 
+}
+
+function log-verbose() {
+  [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseApprovedVerbs', '', Justification='Log verbose is more accurate')]
+  param()
+
+  Write-PSFMessage -Level Verbose -Message "$args" -Target $env:COMPUTERNAME 
+}
+
+Initialize-Logging
 
 function addto-Env () {
    param($path)

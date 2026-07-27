@@ -1,3 +1,4 @@
+#Requires -Modules PSFramework
 <#
 .Description
 This script takes a script and turns it into a snippet.
