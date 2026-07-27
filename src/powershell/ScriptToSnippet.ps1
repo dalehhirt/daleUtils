@@ -27,16 +27,7 @@ begin {
     $defaultTimeFormat = "yyyy'-'MM'-'dd'T'HH':'mm':'sszzzz"
     Set-PSFConfig -Name PSFramework.Message.Style.TimeFormat -Value $defaultTimeFormat
 
-    # TODO: Uncomment if you want log files
-    # Set-PSFConfig -Name "PSFramework.Logging.LogFile.$($script:_ScriptName).TimeFormat" -Value $defaultTimeFormat
-    # $paramSetPSFLoggingProvider = @{
-    #     Name         = 'logfile'
-    #     InstanceName = $script:_ScriptName
-    #     FilePath     = Join-Path $PSScriptRoot "$($script:_ScriptName)-%Date%.csv"
-    #     Enabled      = $true
-    #     Wait         = $true
-    # }
-    # Set-PSFLoggingProvider @paramSetPSFLoggingProvider
+    log "Logging Initialized"
   }
 
   function log() {
@@ -82,8 +73,4 @@ end {
 
   # This makes sure we wait for any lingering messages
   Wait-PSFMessage
-
-  # Disable the logfile provider
-  # TODO: Uncomment if you want log files
-  # Disable-PSFLoggingProvider -Name logfile -InstanceName $script:_ScriptName
 }
