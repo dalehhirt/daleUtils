@@ -34,6 +34,7 @@
 		"description": "Add log function",
 		"body": [
 			"  # TODO: Call Wait-PSFMessage at the end of this script",
+			"  # TODO:  Add #Requires -Modules PSFramework",
 			"  \\$script:_ScriptName = '$1'",
 			"",
 			"  function Initialize-Logging() {",
@@ -81,6 +82,7 @@
 		"prefix": "newFile",
 		"description": "New File Script (No Azure)",
 		"body": [
+			"#Requires -Modules PSFramework",
 			"<#",
 			".Description",
 			"This script runs.",
@@ -147,6 +149,7 @@
 		"prefix": "newAzFile",
 		"description": "New File Script (With Azure)",
 		"body": [
+			"#Requires -Modules PSFramework",
 			"<#",
 			".Description",
 			"This script runs.",
