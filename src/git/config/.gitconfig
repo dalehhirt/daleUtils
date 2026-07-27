@@ -46,6 +46,8 @@
 	delete-old-branches = !git fetch -p && git branch -vv | awk \"/: gone]/{print \\$1}\" | xargs git branch -D -v
 	branch-name = rev-parse --abbrev-ref HEAD
 
+	diff-branch = "!git fetch origin -v; git difftool --dir-diff $(git branch-name)"
+
 	stashes = stash list
 	snapshot = !git stash save \"snapshot: $(date)\" && git stash apply stash@{0}
 
@@ -97,6 +99,7 @@ git worktree add -b $1 $WORKTREE_REPO_DIR; \
 	# This adds a new branch at the given path
 	wta = worktree add
 	wtr = worktree remove
+	wtrf = worktree remove --force
 
 [user]
 	name = Dale Hirt
