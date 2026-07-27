@@ -10,10 +10,34 @@ code $profile.CurrentUserAllHosts
 #-------------------------
 # Functions
 #-------------------------
+function Initialize-Logging() {
+  Set-PSFConfig -Name PSFramework.Message.Style.Prefix -Value $true
+  Set-PSFConfig -Name PSFramework.Message.Style.Prefix.Host -Value ">>>"
+  Set-PSFConfig -Name PSFramework.Message.Style.Prefix.Verbose -Value ">>>"
+  Set-PSFConfig -Name PSFramework.Message.Info.Color -Value "Green"
+  $defaultTimeFormat = "yyyy'-'MM'-'dd'T'HH':'mm':'sszzzz"
+  Set-PSFConfig -Name PSFramework.Message.Style.TimeFormat -Value $defaultTimeFormat
+}
 
 function log() {
-  write-host ">>> [$($env:COMPUTERNAME)]" ((Get-Date).ToUniversalTime().ToString('u')) "$args" -ForeGroundColor Green
+  Write-PSFMessage -Level Host -Message "$args" -Target $env:COMPUTERNAME 
 }
+
+function log-error() {
+  [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseApprovedVerbs', '', Justification='Log error is more accurate')]
+  param()
+
+  Write-PSFMessage -Level Error -Message "$args" -Target $env:COMPUTERNAME 
+}
+
+function log-verbose() {
+  [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseApprovedVerbs', '', Justification='Log verbose is more accurate')]
+  param()
+
+  Write-PSFMessage -Level Verbose -Message "$args" -Target $env:COMPUTERNAME 
+}
+
+Initialize-Logging
 
 function addto-Env () {
    param($path)
@@ -258,6 +282,15 @@ function pd() {
   }
 }
 
+function New-TabsForDirectory() {
+  Get-ChildItem -Directory | ForEach-Object {
+    $tabName = $_.Name
+    $tabPath = $_.FullName
+    log "Opening new tab for $tabName at $tabPath"
+    wt -w 0 -d $tabPath
+  }
+}
+
 function prompt {
 
     $host.ui.RawUI.WindowTitle = "Current Folder: $pwd"
@@ -289,7 +322,15 @@ function prompt {
 # Main
 #-------------------------
 log "Loading $PSCommandPath"
-# log "Setting up `$Profile.CurrentUserAllHosts $($Profile.CurrentUserAllHosts)"
+
+# Make sure we can find git cmd just in case
+addto-Env "$($env:USERPROFILE)\OneDrive - Mavis Tire\Documents\tools\azcli\bin"
+addto-Env "$($env:USERPROFILE)\OneDrive - Mavis Tire\Documents\tools\terraform"
+addto-Env "$($env:USERPROFILE)\OneDrive - Mavis Tire\Documents\tools\Graphviz\bin"
+addto-env "$($env:USERPROFILE)\OneDrive - Mavis Tire\Documents\tools\sysinternals"
+addto-env "$($env:USERPROFILE)\OneDrive - Mavis Tire\Documents\tools\go\bin"
+addto-env "$($env:USERPROFILE)\OneDrive - Mavis Tire\Documents\tools\github\bin"
+addto-env "$($env:USERPROFILE)\OneDrive - Mavis Tire\Documents\tools\git\cmd"
 
 if ($null -ne (get-module -Name Posh-Git -ListAvailable -ErrorAction SilentlyContinue)) {
   log "Loading posh-git"
@@ -302,10 +343,3 @@ if($env:HOME -ne $env:USERPROFILE) {
   $env:HOME = $env:USERPROFILE
 }
 
-addto-Env "$($env:USERPROFILE)\OneDrive - Mavis Tire\Documents\tools\azcli\bin"
-addto-Env "$($env:USERPROFILE)\OneDrive - Mavis Tire\Documents\tools\terraform"
-addto-Env "$($env:USERPROFILE)\OneDrive - Mavis Tire\Documents\tools\Graphviz\bin"
-addto-env "$($env:USERPROFILE)\OneDrive - Mavis Tire\Documents\tools\sysinternals"
-addto-env "$($env:USERPROFILE)\OneDrive - Mavis Tire\Documents\tools\go\bin"
-addto-env "$($env:USERPROFILE)\OneDrive - Mavis Tire\Documents\tools\github\bin"
-addto-env "$($env:USERPROFILE)\OneDrive - Mavis Tire\Documents\tools\git\cmd"

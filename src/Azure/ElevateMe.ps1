@@ -33,20 +33,47 @@ param(
 )
 begin {
   $start = get-date
+  # TODO: Call Wait-PSFMessage at the end of this script
+  $script:_ScriptName = ''
+
+  # ------------------------------
+  # Leave this section alone
+  # ------------------------------
   
+  function Initialize-Logging() {
+    Set-PSFConfig -Name PSFramework.Message.Style.Prefix -Value $true
+    Set-PSFConfig -Name PSFramework.Message.Style.Prefix.Host -Value ">>> "
+    Set-PSFConfig -Name PSFramework.Message.Info.Color -Value "Green"
+    $defaultTimeFormat = "yyyy'-'MM'-'dd'T'HH':'mm':'sszzzz"
+    Set-PSFConfig -Name PSFramework.Message.Style.TimeFormat -Value $defaultTimeFormat
+  }
+
   function log() {
-    write-host ">>> [$($env:COMPUTERNAME)]" ((Get-Date).ToUniversalTime().ToString('u')) "$args" -ForeGroundColor Green
+    Write-PSFMessage -Level Host -Message "$args" -Target $env:COMPUTERNAME 
   }
   
   function log-error() {
-    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseApprovedVerbs', '',
-      Justification = 'Log error is more accurate')]
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseApprovedVerbs', '', Justification='Log error is more accurate')]
     param()
   
-    Write-Error ">>> [$($env:COMPUTERNAME)] $((Get-Date).ToUniversalTime().ToString('u')) $args"
+    Write-PSFMessage -Level Error -Message "$args" -Target $env:COMPUTERNAME 
   }
+  
+  function log-verbose() {
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseApprovedVerbs', '', Justification='Log verbose is more accurate')]
+    param()
 
-  function Enable-AzRoles {
+    Write-PSFMessage -Level Verbose -Message "$args" -Target $env:COMPUTERNAME 
+  }
+  
+  Initialize-Logging
+  
+  # ------------------------------
+  # Write code starting here
+  # ------------------------------
+  log "Starting" $script:_ScriptName
+
+ function Enable-AzRoles {
     [CmdletBinding(SupportsShouldProcess = $true)]
     param (
       $subscriptionName, 
@@ -156,4 +183,5 @@ process {
 }
 end {
   log "Finished" ((get-date) - $start).ToString("hh\h\:mm\m\:ss\s")
+  Wait-PSFMessage
 }
