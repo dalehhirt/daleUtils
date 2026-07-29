@@ -18,6 +18,27 @@
 param (
 )
 
+function log() {
+  write-host ">>> [$($env:COMPUTERNAME)]" ((Get-Date).ToUniversalTime().ToString('u')) "$args" -ForeGroundColor Green
+}
+
+function log-error() {
+  [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseApprovedVerbs', '',
+    Justification='Log error is more accurate')]
+  param()
+
+  Write-Error ">>> [$($env:COMPUTERNAME)] $((Get-Date).ToUniversalTime().ToString('u')) $args"
+}
+
+function log-verbose() {
+  [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseApprovedVerbs', '',
+    Justification='Log verbose is more accurate')]
+  param()
+
+  Write-Error ">>> [$($env:COMPUTERNAME)] $((Get-Date).ToUniversalTime().ToString('u')) $args"
+}
+
+
 function Add-ChocolateyPackage {
     [CmdletBinding()]
     param (
@@ -44,7 +65,7 @@ function Add-ChocolateyPackage {
             if($Force) {
                 $cmd += " --force"
             }
-            write-verbose ">>> Running $cmd"
+            log-verbose "Running $cmd"
             Invoke-Expression -Command $cmd
         }
     }
@@ -54,11 +75,11 @@ function Add-ChocolateyPackage {
     }
 }
 
-write-host ">>> Starting $(get-date)"
+log "Starting $(get-date)"
 
 # install Chocolatey
 if (!(Test-Path "$($env:ProgramData)\chocolatey\bin\choco.exe")) {
-    write-host ">>> Installing chocolatey"
+    log "Installing chocolatey"
     Set-ExecutionPolicy Bypass -Scope Process -Force;
     [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072;
     Invoke-Expression ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'))
@@ -120,4 +141,4 @@ Add-ChocolateyPackage -PackageName "discord"
 Add-ChocolateyPackage -PackageName "choco-cleaner"
 Add-ChocolateyPackage -PackageName "choco-upgrade-all-at" -Parameters "'/DAILY:yes /TIME:07:00 /ABORTTIME:10:00'"
 
-write-host ">>> Finished $(get-date)"
+log "Finished $(get-date)"
