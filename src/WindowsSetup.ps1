@@ -97,6 +97,10 @@ Add-ChocolateyPackage -PackageName "ssms"
 # Kubernetes client
 Add-ChocolateyPackage -PackageName "kubernetes-cli"
 Add-ChocolateyPackage -PackageName "kubernetes-helm"
+# Terraform client
+Add-ChocolateyPackage -PackageName "terraform"
+Add-ChocolateyPackage -PackageName "terragrunt"
+Add-ChocolateyPackage -PackageName "vscode-terraform"
 
 # Azure clients
 Add-ChocolateyPackage -PackageName "azure-cli"
