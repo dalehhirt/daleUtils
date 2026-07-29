@@ -2,13 +2,15 @@
 #requires -RunAsAdministrator
 <#
 .SYNOPSIS
-  Set up a machine for SysAdmin responsibilities
+  Set up a machine for SysAdmin and Dev responsibilities
 .DESCRIPTION
   This script will install chocolatey and several utilities to get you started setting up a sysadmin box.
   This is intended to be installed on your personal machine where you will do your sysadmin work from.
   It will not work on a SAW.
+.PARAMETER isPersonal
+  If true, it will install personal software like Dropbox, Box, Google Drive, Darktable, Thunderbird, Windows Terminal, Firefox and Discord.
 .EXAMPLE
-  ./SysadminSetupScript.ps1
+  ./WindowsSetup.ps1
 .NOTES
   It requires Administrator privileges and at least Powershell 4.0.
 .LINK
@@ -16,6 +18,7 @@
 #>
 [CmdletBinding()]
 param (
+  [bool]$isPersonal = $false
 )
 
 function log() {
@@ -35,7 +38,7 @@ function log-verbose() {
     Justification='Log verbose is more accurate')]
   param()
 
-  Write-Error ">>> [$($env:COMPUTERNAME)] $((Get-Date).ToUniversalTime().ToString('u')) $args"
+  Write-Verbose ">>> [$($env:COMPUTERNAME)] $((Get-Date).ToUniversalTime().ToString('u')) $args"
 }
 
 
@@ -128,16 +131,18 @@ Add-ChocolateyPackage -PackageName "7zip"
 Add-ChocolateyPackage -PackageName "beyondcompare"
 
 Add-ChocolateyPackage -PackageName "cascadiacodepl"
-Add-ChocolateyPackage -PackageName "dropbox"
-Add-ChocolateyPackage -PackageName "box-drive"
-Add-ChocolateyPackage -PackageName "google-drive-file-stream"
 
+if ($isPersonal) {
+  Add-ChocolateyPackage -PackageName "dropbox"
+  Add-ChocolateyPackage -PackageName "box-drive"
+  Add-ChocolateyPackage -PackageName "google-drive-file-stream"
+  Add-ChocolateyPackage -PackageName "darktable"
+  Add-ChocolateyPackage -PackageName "thunderbird"
+  Add-ChocolateyPackage -PackageName "microsoft-windows-terminal"
+  Add-ChocolateyPackage -PackageName "firefox"
+  Add-ChocolateyPackage -PackageName "discord"
+}
 
-Add-ChocolateyPackage -PackageName "darktable"
-Add-ChocolateyPackage -PackageName "thunderbird"
-Add-ChocolateyPackage -PackageName "microsoft-windows-terminal"
-Add-ChocolateyPackage -PackageName "firefox"
-Add-ChocolateyPackage -PackageName "discord"
 Add-ChocolateyPackage -PackageName "choco-cleaner"
 Add-ChocolateyPackage -PackageName "choco-upgrade-all-at" -Parameters "'/DAILY:yes /TIME:07:00 /ABORTTIME:10:00'"
 
