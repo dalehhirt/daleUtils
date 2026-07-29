@@ -89,9 +89,6 @@ Add-ChocolateyPackage -PackageName "git"
 Add-ChocolateyPackage -PackageName "rsat"
 
 # SQL Server tools
-Add-ChocolateyPackage -PackageName "azure-data-studio"
-Add-ChocolateyPackage -PackageName "azure-data-studio-sql-server-admin-pack"
-Add-ChocolateyPackage -PackageName "azuredatastudio-powershell"
 Add-ChocolateyPackage -PackageName "ssms"
 
 # Kubernetes client
