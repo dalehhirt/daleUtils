@@ -76,9 +76,6 @@ Add-ChocolateyPackage -PackageName "vscode-powershell"
 Add-ChocolateyPackage -PackageName "vscode-gitignore"
 Add-ChocolateyPackage -PackageName "vscode-gitlens"
 Add-ChocolateyPackage -PackageName "vscode-icons"
-Add-ChocolateyPackage -PackageName "vscode-kubernetes-tools"
-Add-ChocolateyPackage -PackageName "vscode-mssql"
-Add-ChocolateyPackage -PackageName "vscode-powershell"
 Add-ChocolateyPackage -PackageName "vscode-yaml"
 
 Add-ChocolateyPackage -PackageName "sysinternals"
@@ -90,10 +87,13 @@ Add-ChocolateyPackage -PackageName "rsat"
 
 # SQL Server tools
 Add-ChocolateyPackage -PackageName "ssms"
+Add-ChocolateyPackage -PackageName "vscode-mssql"
 
 # Kubernetes client
 Add-ChocolateyPackage -PackageName "kubernetes-cli"
 Add-ChocolateyPackage -PackageName "kubernetes-helm"
+Add-ChocolateyPackage -PackageName "vscode-kubernetes-tools"
+
 # Terraform client
 Add-ChocolateyPackage -PackageName "terraform"
 Add-ChocolateyPackage -PackageName "terragrunt"
